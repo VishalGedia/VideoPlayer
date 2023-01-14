@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.exoplayer2.ExoPlayer
@@ -47,6 +48,16 @@ class MainActivity : AppCompatActivity() {
                 it.setImageResource(R.drawable.play)
                 pauseVideo()
             }
+        }
+
+        //click event listener for next button
+        binding.ibNext.setOnClickListener {
+            changeVideo(true)
+        }
+
+        //click event listener for previous button
+        binding.ibPrevious.setOnClickListener {
+            changeVideo(false)
         }
     }
 
@@ -101,8 +112,19 @@ class MainActivity : AppCompatActivity() {
 
             videoLibrary = videosList.sortedBy { it.publishedAt!!.toDate() }.toList()
 
-            //load first video by default after it gets sorted by date
-            loadVideo()
+            if (videoLibrary.isNotEmpty()) {
+                //load first video by default after it gets sorted by date
+                loadVideo()
+                //make previous button insensitive
+                makeButtonInsensitive(true)
+
+                if (videoLibrary.size == 1) {
+                    //make next button insensitive
+                    makeButtonInsensitive(false)
+                }
+            } else {
+                Toast.makeText(this, "Empty Video Library", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -120,6 +142,12 @@ class MainActivity : AppCompatActivity() {
 
         // Prepare the player.
         mPlayer!!.prepare()
+
+        //update pause button to play when prev/next button is pressed on a running video
+        if (isPlaying) {
+            isPlaying = false
+            binding.ibPlay.setImageResource(R.drawable.play)
+        }
     }
 
     //creating mediaSource
@@ -141,5 +169,57 @@ class MainActivity : AppCompatActivity() {
     //function to pause a video
     private fun pauseVideo() {
         binding.vvPlayer.player?.pause()
+    }
+
+    private fun changeVideo(isNext: Boolean) {
+        if (isNext) {
+            //increment the current index
+            currentVideoIndex++
+
+            if (currentVideoIndex <= videoLibrary.size - 1) {
+                loadVideo()
+                if (currentVideoIndex == videoLibrary.size - 1) {
+                    makeButtonInsensitive(false)
+                }
+                makeButtonSensitive(true)
+            } else {
+                makeButtonInsensitive(false)
+            }
+        } else {
+            currentVideoIndex--
+
+            // check if the increment is possible
+            if (currentVideoIndex >= 0) {
+                loadVideo()
+                if (currentVideoIndex == 0) {
+                    makeButtonInsensitive(true)
+                }
+                makeButtonSensitive(false)
+            } else {
+                makeButtonInsensitive(true)
+            }
+        }
+    }
+
+    //function to make button Insensitive
+    private fun makeButtonInsensitive(isPrevious: Boolean) {
+        if (!isPrevious) {
+            binding.ibNext.alpha = 0.5f
+            binding.ibNext.isClickable = false
+        } else {
+            binding.ibPrevious.alpha = 0.5f
+            binding.ibPrevious.isClickable = false
+        }
+    }
+
+    //function to make button Sensitive
+    private fun makeButtonSensitive(isPrevious: Boolean) {
+        if (!isPrevious) {
+            binding.ibNext.isClickable = true
+            binding.ibNext.alpha = 1.0f
+        } else {
+            binding.ibPrevious.isClickable = true
+            binding.ibPrevious.alpha = 1.0f
+        }
     }
 }
