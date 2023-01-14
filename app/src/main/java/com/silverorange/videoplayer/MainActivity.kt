@@ -3,6 +3,7 @@ package com.silverorange.videoplayer
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.exoplayer2.ExoPlayer
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private var videoLibrary = listOf<Videos>()
     private var mPlayer: ExoPlayer? = null
     private var currentVideoIndex = 0
+    private var isPlaying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +36,18 @@ class MainActivity : AppCompatActivity() {
         //fetch videos from provided api
         fetchVideoLibrary()
 
+        //event listener for play and pause button
+        binding.ibPlay.setOnClickListener {
+            it as ImageButton
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                it.setImageResource(R.drawable.pause)
+                playVideo()
+            } else {
+                it.setImageResource(R.drawable.play)
+                pauseVideo()
+            }
+        }
     }
 
 
@@ -116,5 +130,16 @@ class MainActivity : AppCompatActivity() {
         // Create a HLS media source pointing to a playlist uri.
         return HlsMediaSource.Factory(dataSourceFactory)
             .createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+    }
+
+    //function to play a video
+    private fun playVideo() {
+
+        binding.vvPlayer.player?.play()
+    }
+
+    //function to pause a video
+    private fun pauseVideo() {
+        binding.vvPlayer.player?.pause()
     }
 }
