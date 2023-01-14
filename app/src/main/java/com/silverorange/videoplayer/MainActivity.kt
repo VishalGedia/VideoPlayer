@@ -18,6 +18,7 @@ import com.silverorange.videoplayer.databinding.ActivityMainBinding
 import com.silverorange.videoplayer.model.Videos
 import com.silverorange.videoplayer.model.toDate
 import com.silverorange.videoplayer.viewmodel.VideosViewModel
+import io.noties.markwon.Markwon
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,11 +29,15 @@ class MainActivity : AppCompatActivity() {
     private var mPlayer: ExoPlayer? = null
     private var currentVideoIndex = 0
     private var isPlaying = false
+    private lateinit var markwon: Markwon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //initialize Markwon Library
+        markwon = Markwon.create(this)
 
         //fetch videos from provided api
         fetchVideoLibrary()
@@ -143,6 +148,9 @@ class MainActivity : AppCompatActivity() {
         // Prepare the player.
         mPlayer!!.prepare()
 
+        //display Markdown rendering on video details
+        showMarkdownRendering(videoLibrary[currentVideoIndex])
+
         //update pause button to play when prev/next button is pressed on a running video
         if (isPlaying) {
             isPlaying = false
@@ -221,5 +229,26 @@ class MainActivity : AppCompatActivity() {
             binding.ibPrevious.isClickable = true
             binding.ibPrevious.alpha = 1.0f
         }
+    }
+
+    //function to perform Markdown rendering
+    private fun showMarkdownRendering(videoDetail: Videos) {
+        // Set Markdown Rendering to video Description
+        markwon.setMarkdown(
+            binding.tvDescription,
+            videoDetail.description.toString()
+        )
+
+        // Set Markdown Rendering to video Title
+        markwon.setMarkdown(
+            binding.tvVideoTitle,
+            videoDetail.title.toString()
+        )
+
+        // Set Markdown Rendering to video Artist
+        markwon.setMarkdown(
+            binding.tvArtist,
+            videoDetail.author!!.name.toString()
+        )
     }
 }

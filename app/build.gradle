@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    final def markwon_version = '4.2.0'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
@@ -48,4 +49,7 @@ dependencies {
     //implementing networking library to call api
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+    //adding markwon core library
+    implementation "io.noties.markwon:core:$markwon_version"
 }
